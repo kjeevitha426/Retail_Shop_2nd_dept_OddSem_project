@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Retail Store Inventory & Sales Analysis</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="ambient-glow"></div>
+    <div id="toast-container"></div>
+
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="brand-section">
+                <div class="brand-icon">🛒</div>
+                <div class="brand-info">
+                    <h2>RetailFlow</h2>
+                    <span>POS & Intelligence</span>
+                </div>
+            </div>
+
+            <ul class="nav-menu">
+                <!-- Overview: Admin Only -->
+                <li class="nav-item admin-only active" data-view="overview-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    <span>Overview</span>
+                    <span class="admin-tag">ADMIN</span>
+                </li>
+
+                <!-- POS Billing: Worker & Admin -->
+                <li class="nav-item" data-view="pos-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                    <span>POS Billing</span>
+                </li>
+
+                <!-- Inventory: Worker & Admin -->
+                <li class="nav-item" data-view="inventory-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <span>Stock & Inventory</span>
+                </li>
+
+                <!-- Dynamic Analytics: Admin Only -->
+                <li class="nav-item admin-only" data-view="analytics-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <span>Python Analytics</span>
+                    <span class="admin-tag">ADMIN</span>
+                </li>
+
+                <!-- Reports: Admin Only -->
+                <li class="nav-item admin-only" data-view="reports-view">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <span>Reports Center</span>
+                    <span class="admin-tag">ADMIN</span>
+                </li>
+            </ul>
+
+            <!-- User Profile in Sidebar Footer -->
+            <div class="user-profile">
+                <div class="user-avatar" id="user-avatar-initials">AD</div>
+                <div class="user-meta">
+                    <div class="user-name" id="user-full-name">Administrator</div>
+                    <span id="user-role-badge" class="badge badge-admin">ADMIN</span>
+                </div>
+                <button class="logout-btn" id="logout-btn" title="Sign Out">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Wrapper -->
+        <main class="main-wrapper">
+            <!-- Top Bar -->
+            <header class="top-bar">
+                <div class="page-title">
+                    <h1 id="page-heading">Store Dashboard</h1>
+                    <p id="page-subheading">Retail Store Management, Billing & Sales Analytics</p>
+                </div>
+                <div class="top-actions">
+                    <div class="clock-widget" id="live-clock">Loading clock...</div>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- ============================================================== -->
+                <!-- SECTION 1: OVERVIEW (ADMIN ONLY)                               -->
+                <!-- ============================================================== -->
+                <section class="dashboard-view active" id="overview-view">
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div>
+                                <div class="kpi-title">Today's Revenue</div>
+                                <div class="kpi-value" id="kpi-today-revenue">$0.00</div>
+                                <div class="kpi-sub"><span id="kpi-today-tx">0</span> sales completed today</div>
+                            </div>
+                            <div class="kpi-icon icon-green">💵</div>
+                        </div>
+
+                        <div class="kpi-card">
+                            <div>
+                                <div class="kpi-title">Total Active SKUs</div>
+                                <div class="kpi-value" id="kpi-total-skus">0</div>
+                                <div class="kpi-sub">Across 5 retail categories</div>
+                            </div>
+                            <div class="kpi-icon icon-blue">📦</div>
+                        </div>
+
+                        <div class="kpi-card">
+                            <div>
+                                <div class="kpi-title">Units in Stock</div>
+                                <div class="kpi-value" id="kpi-total-stock">0</div>
+                                <div class="kpi-sub">Valuation: <span id="kpi-inventory-val" style="color: var(--primary); font-weight: 600;">$0</span></div>
+                            </div>
+                            <div class="kpi-icon icon-purple">🏷️</div>
+                        </div>
+
+                        <div class="kpi-card">
+                            <div>
+                                <div class="kpi-title">Low Stock Items</div>
+                                <div class="kpi-value" style="color: var(--warning);" id="kpi-low-stock-count">0</div>
+                                <div class="kpi-sub">Below safety threshold</div>
+                            </div>
+                            <div class="kpi-icon icon-yellow">⚠️</div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Action Navigation Banner -->
+                    <div class="card" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.15), rgba(56, 189, 248, 0.05)); border-color: var(--border-accent);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+                            <div>
+                                <h3 style="font-size: 1.15rem; color: #ffffff;">Quick Action Center</h3>
+                                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+                                    Start a new checkout sale or launch dynamic Python analytics for deep insights.
+                                </p>
+                            </div>
+                            <div style="display: flex; gap: 12px;">
+                                <button class="btn btn-primary" onclick="App.switchView('pos-view')">
+                                    🛒 Open POS Terminal
+                                </button>
+                                <button class="btn btn-secondary" onclick="App.switchView('analytics-view')">
+                                    📈 Open Python Analytics
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- SECTION 2: POS BILLING TERMINAL (WORKER & ADMIN)               -->
+                <!-- ============================================================== -->
+                <section class="dashboard-view" id="pos-view">
+                    <div class="pos-layout">
+                        <!-- Catalog Column -->
+                        <div class="pos-catalog">
+                            <div class="pos-catalog-header">
+                                <div class="search-box">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                    <input type="text" id="pos-search-input" class="form-control" placeholder="Search product name or code (e.g. PRD-101)...">
+                                </div>
+                            </div>
+
+                            <!-- Category Pills -->
+                            <div class="pos-categories" id="pos-category-pills">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+
+                            <!-- Products Grid -->
+                            <div class="product-grid" id="pos-product-grid">
+                                <!-- Populated dynamically by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Cart & Checkout Column -->
+                        <div class="pos-cart">
+                            <div class="cart-header">
+                                <h3 style="font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                    🧾 Current Order Cart
+                                </h3>
+                                <button class="btn btn-sm btn-secondary" id="pos-clear-cart-btn">Clear</button>
+                            </div>
+
+                            <div class="cart-items" id="pos-cart-items">
+                                <div style="text-align: center; color: var(--text-dim); padding: 40px;">
+                                    Cart is empty. Select products from the left to begin billing.
+                                </div>
+                            </div>
+
+                            <div class="cart-summary">
+                                <div style="margin-bottom: 8px;">
+                                    <input type="text" id="pos-customer-name" class="form-control" placeholder="Customer Name (Optional)" style="margin-bottom: 6px; padding: 6px 10px; font-size: 0.82rem;">
+                                    <input type="text" id="pos-customer-phone" class="form-control" placeholder="Phone Number (Optional)" style="padding: 6px 10px; font-size: 0.82rem;">
+                                </div>
+
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+                                    <select id="pos-discount-select" class="form-control" style="padding: 6px 10px; font-size: 0.82rem;">
+                                        <option value="0">No Discount</option>
+                                        <option value="5">5% Discount</option>
+                                        <option value="10">10% Discount</option>
+                                        <option value="15">15% Discount</option>
+                                    </select>
+                                    <select id="pos-payment-method" class="form-control" style="padding: 6px 10px; font-size: 0.82rem;">
+                                        <option value="CASH">Cash</option>
+                                        <option value="CREDIT_CARD">Credit Card</option>
+                                        <option value="DEBIT_CARD">Debit Card</option>
+                                        <option value="UPI_MOBILE">UPI Mobile</option>
+                                    </select>
+                                </div>
+
+                                <div class="summary-row">
+                                    <span>Subtotal:</span>
+                                    <span id="pos-subtotal">$0.00</span>
+                                </div>
+                                <div class="summary-row" style="color: var(--danger);">
+                                    <span>Discount:</span>
+                                    <span id="pos-discount-amt">-$0.00</span>
+                                </div>
+                                <div class="summary-row">
+                                    <span>Sales Tax (8%):</span>
+                                    <span id="pos-tax-amt">$0.00</span>
+                                </div>
+                                <div class="summary-row summary-total">
+                                    <span>Grand Total:</span>
+                                    <span id="pos-grand-total" style="color: var(--success);">$0.00</span>
+                                </div>
+
+                                <button class="btn btn-primary" id="pos-checkout-btn" style="width: 100%; margin-top: 10px;" disabled>
+                                    Complete Sale & Print Receipt
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- SECTION 3: INVENTORY & STOCK (WORKER & ADMIN)                  -->
+                <!-- ============================================================== -->
+                <section class="dashboard-view" id="inventory-view">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h2 class="card-title">📦 Product Inventory & Stock Management</h2>
+                                <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+                                    Real-time product catalog, stock adjustments, safety thresholds, and inventory valuation.
+                                </p>
+                            </div>
+                            <div class="admin-only">
+                                <button class="btn btn-primary" onclick="Inventory.openAddModal()">
+                                    + Add New Product
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Inventory Filters -->
+                        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                            <input type="text" id="inv-search-input" class="form-control" placeholder="Search by name, SKU or code...">
+                            <select id="inv-category-filter" class="form-control">
+                                <option value="ALL">All Categories</option>
+                            </select>
+                            <select id="inv-status-filter" class="form-control">
+                                <option value="ALL">All Stock Statuses</option>
+                                <option value="HEALTHY">In Stock (Healthy)</option>
+                                <option value="LOW">Low Stock (Alert)</option>
+                                <option value="OUT">Out of Stock (Zero)</option>
+                            </select>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>SKU Code</th>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Unit Price</th>
+                                        <th>Stock Quantity</th>
+                                        <th>Threshold</th>
+                                        <th>Valuation</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inv-table-body">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- SECTION 4: DYNAMIC PYTHON ANALYTICS (ADMIN ONLY)              -->
+                <!-- ============================================================== -->
+                <section class="dashboard-view" id="analytics-view">
+                    <!-- Dynamic Parameter Control Bar -->
+                    <div class="analytics-controls">
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Analysis Model</label>
+                            <select id="analytics-type-select" class="form-control">
+                                <option value="daily_trend">Daily Sales Revenue & Units Trend</option>
+                                <option value="product_performance">Top Selling Products by Revenue & Volume</option>
+                                <option value="category_distribution">Category Share & Distribution (Donut)</option>
+                                <option value="stock_vs_sales">Inventory Availability vs. Sales Demand</option>
+                                <option value="low_stock_risk">Urgent Stock Depletion Risk & Reorder Alerts</option>
+                                <option value="product_deep_dive">Product Deep-Dive Trajectory</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" id="analytics-product-group" style="margin: 0;">
+                            <label class="form-label">Product Filter</label>
+                            <select id="analytics-product-select" class="form-control">
+                                <option value="ALL">All Products (Global)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Category</label>
+                            <select id="analytics-category-select" class="form-control">
+                                <option value="ALL">All Categories</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Date From</label>
+                            <input type="date" id="analytics-from-date" class="form-control">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label">Date To</label>
+                            <input type="date" id="analytics-to-date" class="form-control">
+                        </div>
+
+                        <button class="btn btn-primary" id="run-analytics-btn" style="height: 42px;">
+                            Run Python Analysis
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Preprocessed KPIs Bar -->
+                    <div class="kpi-grid" style="margin-bottom: 20px;" id="analytics-kpis-bar">
+                        <div class="kpi-card" style="padding: 14px 18px;">
+                            <div>
+                                <div class="kpi-title" style="font-size: 0.72rem;">Gross Item Revenue</div>
+                                <div class="kpi-value" style="font-size: 1.3rem;" id="an-kpi-revenue">$0.00</div>
+                            </div>
+                        </div>
+                        <div class="kpi-card" style="padding: 14px 18px;">
+                            <div>
+                                <div class="kpi-title" style="font-size: 0.72rem;">Units Sold</div>
+                                <div class="kpi-value" style="font-size: 1.3rem;" id="an-kpi-units">0</div>
+                            </div>
+                        </div>
+                        <div class="kpi-card" style="padding: 14px 18px;">
+                            <div>
+                                <div class="kpi-title" style="font-size: 0.72rem;">Transactions</div>
+                                <div class="kpi-value" style="font-size: 1.3rem;" id="an-kpi-orders">0</div>
+                            </div>
+                        </div>
+                        <div class="kpi-card" style="padding: 14px 18px;">
+                            <div>
+                                <div class="kpi-title" style="font-size: 0.72rem;">Avg Order Value</div>
+                                <div class="kpi-value" style="font-size: 1.3rem;" id="an-kpi-aov">$0.00</div>
+                            </div>
+                        </div>
+                        <div class="kpi-card" style="padding: 14px 18px;">
+                            <div>
+                                <div class="kpi-title" style="font-size: 0.72rem;">Best Performing Item</div>
+                                <div class="kpi-value" style="font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;" id="an-kpi-top-prod">N/A</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Matplotlib Visualization Display Card -->
+                    <div class="chart-display-card">
+                        <div id="chart-placeholder" style="color: var(--text-muted); text-align: center;">
+                            <span class="spinner" style="width: 32px; height: 32px; margin-bottom: 12px;"></span>
+                            <div>Running Python preprocessing and rendering visualization...</div>
+                        </div>
+                        <img id="analytics-chart-img" class="chart-img" alt="Python Analytics Chart" style="display: none;">
+                    </div>
+
+                    <!-- Preprocessed Pandas Tabular Breakdown -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <h3 class="card-title">📊 Preprocessed Statistical Breakdown</h3>
+                                <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
+                                    Gross item revenue excludes discounts and tax; average order value uses final invoice amounts for matching orders.
+                                </p>
+                            </div>
+                            <button class="btn btn-sm btn-secondary" onclick="Analytics.exportTableToCSV()">
+                                📥 Export to CSV
+                            </button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead id="an-table-head"></thead>
+                                <tbody id="an-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- ============================================================== -->
+                <!-- SECTION 5: REPORTS CENTER (ADMIN ONLY)                         -->
+                <!-- ============================================================== -->
+                <section class="dashboard-view" id="reports-view">
+                    <div class="auth-tabs" style="max-width: 500px; margin-bottom: 24px;">
+                        <button class="auth-tab-btn active report-tab-btn" data-tab="daily">1. Daily Sales Report</button>
+                        <button class="auth-tab-btn report-tab-btn" data-tab="availability">2. Product Availability</button>
+                        <button class="auth-tab-btn report-tab-btn" data-tab="low-stock">3. Low-Stock Alerts</button>
+                    </div>
+
+                    <!-- Report 1: Daily Sales -->
+                    <div class="report-tab-pane active" id="rep-pane-daily">
+                        <div class="card">
+                            <div class="card-header">
+                                <div style="display: flex; align-items: center; gap: 16px;">
+                                    <h3 class="card-title">📅 Daily Sales Report</h3>
+                                    <input type="date" id="rep-daily-date" class="form-control" style="width: auto; padding: 4px 10px;">
+                                </div>
+                                <button class="btn btn-sm btn-secondary" onclick="Reports.printCurrentReport()">
+                                    🖨️ Print Report
+                                </button>
+                            </div>
+
+                            <div class="kpi-grid" style="margin-bottom: 20px;">
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Transactions</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem;" id="rep-daily-tx-count">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Gross Sales</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem;" id="rep-daily-gross">$0.00</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Discounts</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem; color: var(--danger);" id="rep-daily-discount">-$0.00</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Tax Collected</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem;" id="rep-daily-tax">$0.00</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Net Revenue</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem; color: var(--success);" id="rep-daily-net">$0.00</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start;">
+                                <div>
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-muted);">Transactions Log</h4>
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Invoice #</th>
+                                                    <th>Customer</th>
+                                                    <th>Cashier</th>
+                                                    <th>Payment</th>
+                                                    <th>Amount</th>
+                                                    <th>Time</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="rep-daily-table-body"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="card" style="padding: 16px;">
+                                    <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-muted);">Top Selling Items</h4>
+                                    <ul id="rep-daily-top-items" style="list-style: none;"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report 2: Availability -->
+                    <div class="report-tab-pane" id="rep-pane-availability">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">📋 Product Availability & Inventory Health Report</h3>
+                                <button class="btn btn-sm btn-secondary" onclick="Reports.printCurrentReport()">
+                                    🖨️ Print Report
+                                </button>
+                            </div>
+
+                            <div class="kpi-grid" style="margin-bottom: 20px;">
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Active SKUs</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem;" id="rep-avail-total-skus">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Total Units Available</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem;" id="rep-avail-total-units">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Total Inventory Value</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem; color: var(--primary);" id="rep-avail-inventory-val">$0.00</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Low Stock SKUs</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem; color: var(--warning);" id="rep-avail-low-count">0</div>
+                                    </div>
+                                </div>
+                                <div class="kpi-card" style="padding: 14px 18px;">
+                                    <div>
+                                        <div class="kpi-title" style="font-size: 0.72rem;">Out of Stock</div>
+                                        <div class="kpi-value" style="font-size: 1.3rem; color: var(--danger);" id="rep-avail-out-count">0</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4 style="font-size: 0.95rem; margin-bottom: 12px; color: var(--text-muted);">Category-Wise Inventory Breakdown</h4>
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Category</th>
+                                            <th>Number of SKUs</th>
+                                            <th>Total Stock Units</th>
+                                            <th>Category Inventory Valuation</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rep-avail-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Report 3: Low-Stock Alerts -->
+                    <div class="report-tab-pane" id="rep-pane-low-stock">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <h3 class="card-title">⚠️ Low-Stock & Critical Replenishment Report</h3>
+                                    <p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 2px;">
+                                        Items requiring urgent restocking to prevent stockouts and missed sales.
+                                    </p>
+                                </div>
+                                <button class="btn btn-sm btn-secondary" onclick="Reports.printCurrentReport()">
+                                    🖨️ Print Report
+                                </button>
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>SKU Code</th>
+                                            <th>Product Name</th>
+                                            <th>Category</th>
+                                            <th>Unit Price</th>
+                                            <th>Urgency Level</th>
+                                            <th>Threshold & Deficit</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rep-lowstock-table-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- MODALS                                                         -->
+    <!-- ============================================================== -->
+
+    <!-- 1. Restock Modal (Worker & Admin) -->
+    <div class="modal-overlay" id="restock-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>📦 Restock Product Inventory</h3>
+                <button class="btn btn-sm btn-secondary" onclick="Inventory.closeModal('restock-modal')">✕</button>
+            </div>
+            <form id="restock-form">
+                <div class="modal-body">
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 16px;">
+                        Product: <strong id="restock-product-name" style="color: #ffffff;"></strong><br>
+                        Current Available Stock: <strong id="restock-current-stock" style="color: var(--primary);"></strong> units
+                    </p>
+
+                    <div class="form-group">
+                        <label class="form-label">Quantity to Add (Units)</label>
+                        <input type="number" id="restock-qty-input" class="form-control" min="1" value="10" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Stock Change Type</label>
+                        <select id="restock-type-select" class="form-control" required>
+                            <option value="RESTOCK">RESTOCK (Warehouse Delivery / Vendor Supply)</option>
+                            <option value="ADJUSTMENT">ADJUSTMENT (Audit Correction / Return)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes / Supplier Batch</label>
+                        <input type="text" id="restock-notes-input" class="form-control" placeholder="e.g. Batch #8942 received">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Inventory.closeModal('restock-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Confirm & Update Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. Add Product Modal (Admin Only) -->
+    <div class="modal-overlay" id="add-product-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✨ Add New Product to Catalog</h3>
+                <button class="btn btn-sm btn-secondary" onclick="Inventory.closeModal('add-product-modal')">✕</button>
+            </div>
+            <form id="add-product-form">
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Product Code (SKU)</label>
+                            <input type="text" id="add-prod-code" class="form-control" placeholder="e.g. PRD-601" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <input type="text" id="add-prod-category" class="form-control" placeholder="e.g. Electronics" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" id="add-prod-name" class="form-control" placeholder="e.g. Wireless Ergonomic Mouse" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Unit Price ($)</label>
+                            <input type="number" step="0.01" id="add-prod-price" class="form-control" placeholder="29.99" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Initial Stock</label>
+                            <input type="number" id="add-prod-stock" class="form-control" value="25" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Low Stock Threshold</label>
+                            <input type="number" id="add-prod-threshold" class="form-control" value="10" min="1" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description (Optional)</label>
+                        <textarea id="add-prod-desc" class="form-control" rows="2" placeholder="Brief product summary..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Inventory.closeModal('add-product-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. Edit Product Modal (Admin Only) -->
+    <div class="modal-overlay" id="edit-product-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>✏️ Edit Product Details</h3>
+                <button class="btn btn-sm btn-secondary" onclick="Inventory.closeModal('edit-product-modal')">✕</button>
+            </div>
+            <form id="edit-product-form">
+                <input type="hidden" id="edit-prod-id">
+                <div class="modal-body">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Product SKU</label>
+                            <input type="text" id="edit-prod-code" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Category</label>
+                            <input type="text" id="edit-prod-category" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Product Name</label>
+                        <input type="text" id="edit-prod-name" class="form-control" required>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div class="form-group">
+                            <label class="form-label">Unit Price ($)</label>
+                            <input type="number" step="0.01" id="edit-prod-price" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Low Stock Threshold</label>
+                            <input type="number" id="edit-prod-threshold" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Description</label>
+                        <textarea id="edit-prod-desc" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Inventory.closeModal('edit-product-modal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 4. Printable Thermal Receipt Modal -->
+    <div class="modal-overlay" id="receipt-modal">
+        <div class="modal" style="max-width: 440px;">
+            <div class="modal-header">
+                <h3>🧾 Customer Sales Receipt</h3>
+                <button class="btn btn-sm btn-secondary" onclick="document.getElementById('receipt-modal').classList.remove('active')">✕</button>
+            </div>
+            <div class="modal-body" id="receipt-print-area">
+                <!-- Filled dynamically by Billing.showReceiptModal() -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="document.getElementById('receipt-modal').classList.remove('active')">Close</button>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Print Receipt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/billing.js"></script>
+    <script src="js/inventory.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>

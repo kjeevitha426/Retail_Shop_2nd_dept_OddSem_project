@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Registration - Retail Store System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-lg);
+            backdrop-filter: blur(12px);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-brand-icon {
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #0284c7, #38bdf8);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: #090d16;
+            margin: 0 auto 12px;
+            box-shadow: 0 0 16px rgba(56, 189, 248, 0.4);
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: #090d16;
+            padding: 4px;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .auth-tab-btn {
+            flex: 1;
+            padding: 9px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .auth-tab-btn.active {
+            background: var(--bg-card);
+            color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .demo-box {
+            background: rgba(56, 189, 248, 0.06);
+            border: 1px dashed var(--border-accent);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .demo-title {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .demo-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow"></div>
+    <div id="toast-container"></div>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-brand-icon">🛒</div>
+                <h1>RetailFlow System</h1>
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-top: 4px;">
+                    Inventory & Sales Analysis System (Java • DBMS • Python)
+                </p>
+            </div>
+
+            <!-- 1-Click Demo Login Bar -->
+            <div class="demo-box">
+                <div class="demo-title">
+                    <span>⚡ Quick Demo Logins</span>
+                    <span style="font-size: 0.7rem; color: var(--text-dim); text-transform: none;">Instant 1-Click Access</span>
+                </div>
+                <div class="demo-buttons">
+                    <button class="btn btn-sm btn-secondary" onclick="quickLogin('admin', 'admin123')">
+                        👑 Admin Demo
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="quickLogin('worker', 'worker123')">
+                        💼 Worker Demo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="auth-tabs">
+                <button class="auth-tab-btn active" id="tab-login-btn" onclick="switchAuthTab('login')">Sign In</button>
+                <button class="auth-tab-btn" id="tab-register-btn" onclick="switchAuthTab('register')">Register New User</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form">
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="login-username" class="form-control" placeholder="Enter username (e.g. admin or worker)" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="login-password" class="form-control" placeholder="Enter password (e.g. admin123)" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;" id="login-submit-btn">
+                    Sign In to Dashboard
+                </button>
+            </form>
+
+            <!-- Register Form (Worker and Admin) -->
+            <form id="register-form" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="reg-fullname" class="form-control" placeholder="e.g. Samantha Miller" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input type="text" id="reg-username" class="form-control" placeholder="Choose unique username" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input type="password" id="reg-password" class="form-control" placeholder="Create secure password" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Role</label>
+                    <select id="reg-role" class="form-control" required>
+                        <option value="WORKER">💼 Store Worker / Cashier (POS & Stock Updates)</option>
+                        <option value="ADMIN">👑 Store Administrator (Full Access + Analytics)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 8px;" id="reg-submit-btn">
+                    Create Account & Register
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        async function readJsonResponse(response) {
+            const body = await response.text();
+            if (!body.trim()) {
+                throw new Error(`The server returned an empty response (HTTP ${response.status} ${response.statusText}).`);
+            }
+
+            try {
+                return JSON.parse(body);
+            } catch {
+                throw new Error(`The server returned invalid JSON (HTTP ${response.status} ${response.statusText}).`);
+            }
+        }
+
+        function switchAuthTab(tab) {
+            const loginForm = document.getElementById('login-form');
+            const regForm = document.getElementById('register-form');
+            const tabLogin = document.getElementById('tab-login-btn');
+            const tabReg = document.getElementById('tab-register-btn');
+
+            if (tab === 'login') {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+                tabLogin.classList.add('active');
+                tabReg.classList.remove('active');
+            } else {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+                tabLogin.classList.remove('active');
+                tabReg.classList.add('active');
+            }
+        }
+
+        async function quickLogin(username, password) {
+            document.getElementById('login-username').value = username;
+            document.getElementById('login-password').value = password;
+            submitLogin(username, password);
+        }
+
+        async function submitLogin(username, password) {
+            const btn = document.getElementById('login-submit-btn');
+            btn.innerHTML = `<span class="spinner"></span> Authenticating...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${App.apiBase}/api/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await readJsonResponse(res);
+                if (res.status === 200 && data.status === 'success') {
+                    App.showToast(`Welcome back, ${username}!`, 'success');
+                    // Store user data
+                    const userData = data.result.data[0];
+                    App.setUser(userData);
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 600);
+                } else {
+                    App.showToast(data.message || 'Invalid username or password', 'error');
+                }
+            } catch (e) {
+                App.showToast(`Unable to sign in: ${e.message}`, 'error');
+            } finally {
+                btn.innerHTML = `Sign In to Dashboard`;
+                btn.disabled = false;
+            }
+        }
+
+        // Form Submit Listeners
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+            submitLogin(u, p);
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('reg-submit-btn');
+            const fullName = document.getElementById('reg-fullname').value.trim();
+            const username = document.getElementById('reg-username').value.trim();
+            const password = document.getElementById('reg-password').value.trim();
+            const role = document.getElementById('reg-role').value;
+
+            btn.innerHTML = `<span class="spinner"></span> Registering...`;
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${App.apiBase}/api/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name: fullName, username, password, role })
+                });
+
+                const data = await readJsonResponse(res);
+                if (res.status === 201 && data.status === 'success') {
+                    App.showToast(`Account created as ${role}! Please sign in.`, 'success');
+                    switchAuthTab('login');
+                    document.getElementById('login-username').value = username;
+                    document.getElementById('login-password').value = password;
+                } else {
+                    App.showToast(data.message || 'Registration failed', 'error');
+                }
+            } catch (e) {
+                App.showToast(`Unable to register: ${e.message}`, 'error');
+            } finally {
+                btn.innerHTML = `Create Account & Register`;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
